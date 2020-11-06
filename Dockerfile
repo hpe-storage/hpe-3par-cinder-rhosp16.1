@@ -3,12 +3,12 @@ FROM registry.redhat.io/rhosp-rhel8/openstack-cinder-volume:16.1
 
 MAINTAINER HPE
 
-LABEL name="rhosp16/openstack-cinder-volume-hpe" \
+LABEL name="rhosp16.1/openstack-cinder-volume-hpe" \
       maintainer="sneha.rai@hpe.com" \
       vendor="HPE" \
       release="16.1" \
       summary="Red Hat OpenStack Platform 16.1 cinder-volume HPE plugin" \
-      description="Cinder plugin for HPE 3PAR"
+      description="Cinder plugin for HPE 3PAR and Primera"
 
 # switch to root and install a custom RPM, etc.
 USER "root"
