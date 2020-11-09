@@ -1,0 +1,61 @@
+parameter_defaults:
+  DockerCinderVolumeImage: <undercloud_full_hostname>:8787/rhosp-rhel8/openstack-cinder-volume-hpe:latest
+  CinderEnableIscsiBackend: false
+  Debug: true
+  ControllerExtraConfig:
+    pacemaker::resource::bundle::deep_compare: true
+    pacemaker::resource::ip::deep_compare: true
+    pacemaker::resource::ocf::deep_compare: true
+    cinder::config::cinder_config:
+      # first backend
+      # parameters used for WSAPI calls
+      3pariscsi_1/hpe3par_api_url:
+        value: https://<3par_ip>:8080/api/v1
+      3pariscsi_1/hpe3par_username:
+        value: <3par_username>
+      3pariscsi_1/hpe3par_password:
+        value: <3par_password>
+      3pariscsi_1/hpe3par_debug:
+        value: True
+      # parameters used for ssh calls
+      3pariscsi_1/san_ip:
+        value: <3par_ip>
+      3pariscsi_1/san_login:
+        value: <3par_username>
+      3pariscsi_1/san_password:
+        value: <3par_password>
+      3pariscsi_1/volume_backend_name:
+        value: 3pariscsi_1
+      3pariscsi_1/hpe3par_cpg:
+        value: <cpg_name>
+      3pariscsi_1/hpe3par_iscsi_ips:
+        value: <iscsi_ip_1>, <iscsi_ip_2>
+      3pariscsi_1/volume_driver:
+        value: cinder.volume.drivers.hpe.hpe_3par_iscsi.HPE3PARISCSIDriver
+      # second backend        
+      # parameters used for WSAPI calls
+      3pariscsi_2/hpe3par_api_url:
+        value: https://<3par_ip>:8080/api/v1
+      3pariscsi_2/hpe3par_username:
+        value: <3par_username>
+      3pariscsi_2/hpe3par_password:
+        value: <3par_password>
+      3pariscsi_2/hpe3par_debug:
+        value: True
+      # parameters used for ssh calls
+      3pariscsi_2/san_ip:
+        value: <3par_ip>
+      3pariscsi_2/san_login:
+        value: <3par_username>
+      3pariscsi_2/san_password:
+        value: <3par_password>
+      3pariscsi_2/volume_backend_name:
+        value: 3pariscsi_2
+      3pariscsi_2/hpe3par_cpg:
+        value: <cpg_name>
+      3pariscsi_2/hpe3par_iscsi_ips:
+        value: <iscsi_ip_1>, <iscsi_ip_2>
+      3pariscsi_2/volume_driver:
+        value: cinder.volume.drivers.hpe.hpe_3par_iscsi.HPE3PARISCSIDriver
+    cinder_user_enabled_backends: ['3pariscsi_1', '3pariscsi_2']
+

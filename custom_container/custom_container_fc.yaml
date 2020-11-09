@@ -1,0 +1,92 @@
+parameter_defaults:
+  DockerCinderVolumeImage: <undercloud_full_hostname>:8787/rhosp-rhel8/openstack-cinder-volume-hpe:latest
+  CinderEnableIscsiBackend: false
+  Debug: true
+  ControllerExtraConfig:
+    pacemaker::resource::bundle::deep_compare: true
+    pacemaker::resource::ip::deep_compare: true
+    pacemaker::resource::ocf::deep_compare: true
+    cinder::config::cinder_config:
+      # [fc-zone-manager]
+      fc-zone-manager/brcd_sb_connector:
+        value: cinder.zonemanager.drivers.brocade.brcd_fc_zone_client_cli.BrcdFCZoneClientCLI
+      fc-zone-manager/fc_fabric_names:
+        value: BRCD_FAB_1,BRCD_FAB_2
+      fc-zone-manager/fc_san_lookup_service:
+        value: cinder.zonemanager.drivers.brocade.brcd_fc_san_lookup_service.BrcdFCSanLookupService
+      fc-zone-manager/zone_driver:
+        value: cinder.zonemanager.drivers.brocade.brcd_fc_zone_driver.BrcdFCZoneDriver
+      # [BRCD_FAB_1]
+      BRCD_FAB_1/fc_fabric_address:
+        value: <switch_ip>
+      BRCD_FAB_1/fc_fabric_user:
+        value: <switch_username>
+      BRCD_FAB_1/fc_fabric_password:
+        value: <switch_password>
+      BRCD_FAB_1/zoning_policy:
+        value: initiator-target
+      BRCD_FAB_1/zone_activate:
+        value: true
+      BRCD_FAB_1/zone_name_prefix:
+        value: <zone_name_prefix>
+      # [BRCD_FAB_2]
+      BRCD_FAB_2/fc_fabric_address:
+        value: <switch_ip>
+      BRCD_FAB_2/fc_fabric_user:
+        value: <switch_username>
+      BRCD_FAB_2/fc_fabric_password:
+        value: <switch_password>
+      BRCD_FAB_2/zoning_policy:
+        value: initiator-target
+      BRCD_FAB_2/zone_activate:
+        value: true
+      BRCD_FAB_2/zone_name_prefix:
+        value: <zone_name_prefix>
+      # first backend        
+      # parameters used for WSAPI calls
+      3parfc_1/hpe3par_api_url:
+        value: https://<3par_ip>:8080/api/v1
+      3parfc_1/hpe3par_username:
+        value: <3par_username>
+      3parfc_1/hpe3par_password:
+        value: <3par_password>
+      3parfc_1/hpe3par_debug:
+        value: True
+      # parameters used for ssh calls
+      3parfc_1/san_ip:
+        value: <3par_ip>
+      3parfc_1/san_login:
+        value: <3par_username>
+      3parfc_1/san_password:
+        value: <3par_password>
+      3parfc_1/volume_backend_name:
+        value: 3parfc_1
+      3parfc_1/hpe3par_cpg:
+        value: <cpg_name>
+      3parfc_1/volume_driver:
+        value: cinder.volume.drivers.hpe.hpe_3par_fc.HPE3PARFCDriver
+      # second backend        
+      # parameters used for WSAPI calls
+      3parfc_2/hpe3par_api_url:
+        value: https://<3par_ip>:8080/api/v1
+      3parfc_2/hpe3par_username:
+        value: <3par_username>
+      3parfc_2/hpe3par_password:
+        value: <3par_password>
+      3parfc_2/hpe3par_debug:
+        value: True
+      # parameters used for ssh calls
+      3parfc_2/san_ip:
+        value: <3par_ip>
+      3parfc_2/san_login:
+        value: <3par_username>
+      3parfc_2/san_password:
+        value: <3par_password>
+      3parfc_2/volume_backend_name:
+        value: 3parfc_2
+      3parfc_2/hpe3par_cpg:
+        value: <cpg_name>
+      3parfc_2/volume_driver:
+        value: cinder.volume.drivers.hpe.hpe_3par_fc.HPE3PARFCDriver
+    cinder_user_enabled_backends: ['3parfc_1', '3parfc_2']
+
