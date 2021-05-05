@@ -28,7 +28,7 @@ sudo buildah login registry.redhat.io
 
 1.3	Build the podman image
 ```
-sudo buildah bud --format docker --build-arg http_proxy=http://16.85.88.10:8080 --build-arg https_proxy=http://16.85.88.10:8080 . 
+sudo buildah bud --format docker --build-arg http_proxy=http://<proxy_ip>:8080 --build-arg https_proxy=http://<proxy_ip>:8080 . 
 ```
 Notice the dot at the end.
 
@@ -73,7 +73,7 @@ openstack overcloud deploy --templates /usr/share/openstack-tripleo-heat-templat
     -e /home/stack/templates/node-info.yaml \
     -e /home/stack/containers-prepare-parameter.yaml \
     -e /home/stack/custom_container/custom_container_[iscsi|fc].yaml \
-    --ntp-server 16.110.135.123 \
+    --ntp-server <ntp_server_ip> \
     --debug
 ```
 
