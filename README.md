@@ -1,4 +1,3 @@
-# HPE 3PAR and Primera Cinder volume custom container for RHOSP16.1
 # HPE 3PAR and Primera Deployment Guide for RHOSP16.1
 
 ## Overview
@@ -12,7 +11,7 @@ python-3parclient 4.2.11
 
 ## Prerequisites
 
-* Red Hat OpenStack Platform 16.1.
+* Red Hat OpenStack Platform 16.1 with RHEL 8.2.
 
 * HPE 3PAR array 3.3.1 OR HPE Primera array 4.2 or higher.
 
@@ -99,7 +98,7 @@ The custom_container_[iscsi|fc].yaml is mentioned after containers-prepare-param
 python-3parclient        4.2.11
 ```
 
-4.3.	Verify that the backend details are visible in /etc/cinder/cinder.conf in the cinder-volume container
+4.3.	Verify that the backend details are visible in ```/etc/cinder/cinder.conf``` in the cinder-volume container
 
 Given below is an example of FC backend details. Similar entries should be observed for iSCSI backend too.
 
