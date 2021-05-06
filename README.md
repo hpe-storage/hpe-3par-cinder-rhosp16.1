@@ -59,15 +59,37 @@ cld13b4.ctlplane.set.rdlabs.hpecorp.net:8787/rhosp-rhel8/openstack-cinder-volume
 sudo openstack tripleo container image push --local cld13b4.ctlplane.set.rdlabs.hpecorp.net:8787/rhosp-rhel8/openstack-cinder-volume-hpe:latest
 ```
 
-### 2.	Configure backend via custom environment yaml
+### 2.	Prepare the Environment File for HPE 3PAR/Primera cinder backend
 
-Create new env file “custom_container_[iscsi|fc].yaml” under /home/stack/custom_container/ with only the custom container parameter and other backend details. Sample files for both iSCSI and FC backends are available in [custom_container](https://github.com/hpe-storage/hpe-3par-cinder-rhosp16.1/blob/master/custom_container) folder for reference
+The environment file is a OSP director environment file. The environment file contains the settings for each backend you want to define.
+
+Create the environment file “custom_container_[iscsi|fc].yaml” under /home/stack/custom_container/ with below parameters and other backend details.
+
 ```
 parameter_defaults:
-    DockerCinderVolumeImage: cld13b4.ctlplane.set.rdlabs.hpecorp.net:8787/rhosp-rhel8/openstack-cinder-volume-hpe:latest
+  DockerCinderVolumeImage: cld13b4.ctlplane.set.rdlabs.hpecorp.net:8787/rhosp-rhel8/openstack-cinder-volume-hpe:latest
+  CinderEnableIscsiBackend: false
+  Debug: true
+  ControllerExtraConfig:
+    pacemaker::resource::bundle::deep_compare: true
+    pacemaker::resource::ip::deep_compare: true
+    pacemaker::resource::ocf::deep_compare: true
 ```
 
+Sample files for both iSCSI and FC backends are available in [custom_container](https://github.com/hpe-storage/hpe-3par-cinder-rhosp16.1/blob/master/custom_container) folder for reference.
+
+## Additional Help
+
+For further details of HPE 3PAR and Primera cinder driver, kindly refer documentation [here](https://docs.openstack.org/cinder/victoria/configuration/block-storage/drivers/hpe-3par-driver.html)
+
+
 ### 3.	Deploy the overcloud and configured backends
+
+After creating ```custom_container_[iscsi|fc].yaml``` file with appropriate backends, deploy the backend configuration by running the openstack overcloud deploy command using the templates option.
+Use the ```-e``` option to include the environment file ```custom_container_[iscsi|fc].yaml```.
+The order of the environment files (.yaml) is important as the parameters and resources defined in subsequent environment files take precedence.
+The ```custom_container_[iscsi|fc].yaml``` is mentioned after ```containers-prepare-parameter.yaml``` so that custom container can be used instead of the default one.
+
 ```
 openstack overcloud deploy --templates /usr/share/openstack-tripleo-heat-templates \
     -e /home/stack/templates/node-info.yaml \
@@ -76,9 +98,6 @@ openstack overcloud deploy --templates /usr/share/openstack-tripleo-heat-templat
     --ntp-server <ntp_server_ip> \
     --debug
 ```
-
-The order of the environment files (.yaml) is important as the parameters and resources defined in subsequent environment files take precedence.
-The custom_container_[iscsi|fc].yaml is mentioned after containers-prepare-parameter.yaml so that custom container can be used instead of the default one.
 
 ### 4.	Verify the configured changes
 
