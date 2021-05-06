@@ -78,7 +78,7 @@ parameter_defaults:
 
 Sample files for both iSCSI and FC backends are available in [custom_container](https://github.com/hpe-storage/hpe-3par-cinder-rhosp16.1/blob/master/custom_container) folder for reference.
 
-## Additional Help
+#### Additional Help
 
 For further details of HPE 3PAR and Primera cinder driver, kindly refer documentation [here](https://docs.openstack.org/cinder/victoria/configuration/block-storage/drivers/hpe-3par-driver.html)
 
@@ -87,6 +87,7 @@ For further details of HPE 3PAR and Primera cinder driver, kindly refer document
 
 After creating ```custom_container_[iscsi|fc].yaml``` file with appropriate backends, deploy the backend configuration by running the openstack overcloud deploy command using the templates option.
 Use the ```-e``` option to include the environment file ```custom_container_[iscsi|fc].yaml```.
+
 The order of the environment files (.yaml) is important as the parameters and resources defined in subsequent environment files take precedence.
 The ```custom_container_[iscsi|fc].yaml``` is mentioned after ```containers-prepare-parameter.yaml``` so that custom container can be used instead of the default one.
 
