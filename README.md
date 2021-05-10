@@ -59,24 +59,100 @@ cld13b4.ctlplane.set.rdlabs.hpecorp.net:8787/rhosp-rhel8/openstack-cinder-volume
 sudo openstack tripleo container image push --local cld13b4.ctlplane.set.rdlabs.hpecorp.net:8787/rhosp-rhel8/openstack-cinder-volume-hpe:latest
 ```
 
-### 2.	Prepare the Environment File for HPE 3PAR/Primera cinder backend
+### 2.	Prepare the Environment Files for HPE 3PAR/Primera cinder-volume container and cinder backend
 
-The environment file is a OSP director environment file. The environment file contains the settings for each backend you want to define.
+#### 2.1 Environment File for cinder-volume container
 
-Create the environment file “custom_container_[iscsi|fc].yaml” under /home/stack/custom_container/ with below parameters and other backend details.
+To use HPE 3PAR/Primera hardware as a Block Storage back end, cinder-volume container having python-3parclient needs to be deployed.
+
+Procedure
+
+Create a new container images file for your overcloud:
+
+```
+openstack tripleo container image prepare default \
+    --local-push-destination \
+    --output-env-file containers-prepare-parameter-hpe.yaml
+```
+
+Edit the containers-prepare-parameter-hpe.yaml file.
+
+Add an exclude parameter to the strategy for the main Red Hat OpenStack Platform container images. 
 
 ```
 parameter_defaults:
-  DockerCinderVolumeImage: cld13b4.ctlplane.set.rdlabs.hpecorp.net:8787/rhosp-rhel8/openstack-cinder-volume-hpe:latest
-  CinderEnableIscsiBackend: false
-  Debug: true
-  ControllerExtraConfig:
-    pacemaker::resource::bundle::deep_compare: true
-    pacemaker::resource::ip::deep_compare: true
-    pacemaker::resource::ocf::deep_compare: true
+  ContainerImagePrepare:
+    - push_destination: true
+      excludes:
+  	   - cinder-volume
+      set:
+        namespace: registry.redhat.io/rhosp-rhel8
+        name_prefix: openstack-
+        name_suffix: ''
+        tag: 16.1
+        ...
+      tag_from_label: "{version}-{release}"
 ```
 
-Sample files for both iSCSI and FC backends are available in [custom_container](https://github.com/hpe-storage/hpe-3par-cinder-rhosp16.1/blob/master/custom_container) folder for reference.
+Add a new strategy to the ContainerImagePrepare parameter that includes the replacement container image for the HPE plugin:
+
+```
+parameter_defaults:
+  ContainerImagePrepare:
+    ...
+    - push_destination: true
+      includes:
+        - cinder-volume
+      set:
+        namespace: registry.connect.redhat.com/hpe3parcinder
+        name_prefix: openstack-
+        name_suffix: -hpe3parcinder16-1
+        tag: latest
+        ...
+```
+
+Add the authentication details for the registry.connect.redhat.com registry to the ContainerImageRegistryCredentials parameter:
+
+```
+parameter_defaults:
+  ContainerImageRegistryCredentials:
+    registry.redhat.io:
+      [service account username]: [service account password]
+    registry.connect.redhat.com:
+      [service account username]: [service account password]
+```
+
+Save the containers-prepare-parameter-hpe.yaml file.
+
+Include the containers-prepare-parameter-hpe.yaml file with any deployment commands, such as as openstack overcloud deploy:
+
+```
+openstack overcloud deploy --templates
+    ...
+    -e containers-prepare-parameter-hpe.yaml
+    ...
+```
+
+When director deploys the overcloud, the overcloud uses the HPE container image instead of the standard container image.
+
+IMPORTANT
+The containers-prepare-parameter-hpe.yaml file replaces the standard containers-prepare-parameter.yaml file in your overcloud deployment. Do not include the standard containers-prepare-parameter.yaml file in your overcloud deployment. Retain the standard containers-prepare-parameter.yaml file for your undercloud installation and updates.
+
+
+
+#### 2.2 Environment File for cinder backend
+
+The environment file is a OSP director environment file. The environment file contains the settings for each backend you want to define.
+
+Create the environment file “cinder-hpe-[iscsi|fc].yaml” under /home/stack/templates/ with below parameters and other backend details.
+
+```
+parameter_defaults:
+  CinderEnableIscsiBackend: false
+  ControllerExtraConfig:
+```
+
+Sample files for both iSCSI and FC backends are available in [templates](https://github.com/traghavendra/hpe-3par-cinder-rhosp16.1/tree/main/templates) folder for reference.
 
 #### Additional Help
 
@@ -85,17 +161,16 @@ For further details of HPE 3PAR and Primera cinder driver, kindly refer document
 
 ### 3.	Deploy the overcloud and configured backends
 
-After creating ```custom_container_[iscsi|fc].yaml``` file with appropriate backends, deploy the backend configuration by running the openstack overcloud deploy command using the templates option.
-Use the ```-e``` option to include the environment file ```custom_container_[iscsi|fc].yaml```.
+After creating ```cinder-hpe-[iscsi|fc].yaml``` file with appropriate backends, deploy the backend configuration by running the openstack overcloud deploy command using the templates option.
+Use the ```-e``` option to include the environment file ```cinder-hpe-[iscsi|fc].yaml```.
 
 The order of the environment files (.yaml) is important as the parameters and resources defined in subsequent environment files take precedence.
-The ```custom_container_[iscsi|fc].yaml``` is mentioned after ```containers-prepare-parameter.yaml``` so that custom container can be used instead of the default one.
 
 ```
 openstack overcloud deploy --templates /usr/share/openstack-tripleo-heat-templates \
     -e /home/stack/templates/node-info.yaml \
-    -e /home/stack/containers-prepare-parameter.yaml \
-    -e /home/stack/custom_container/custom_container_[iscsi|fc].yaml \
+    -e /home/stack/containers-prepare-parameter-hpe.yaml \
+    -e /home/stack/custom_container/cinder-hpe-[iscsi|fc].yaml \
     --ntp-server <ntp_server_ip> \
     --debug
 ```
