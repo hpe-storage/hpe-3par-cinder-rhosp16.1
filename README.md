@@ -135,7 +135,8 @@ openstack overcloud deploy --templates
 
 When director deploys the overcloud, the overcloud uses the HPE container image instead of the standard container image.
 
-IMPORTANT
+IMPORTANT:
+
 The containers-prepare-parameter-hpe.yaml file replaces the standard containers-prepare-parameter.yaml file in your overcloud deployment. Do not include the standard containers-prepare-parameter.yaml file in your overcloud deployment. Retain the standard containers-prepare-parameter.yaml file for your undercloud installation and updates.
 
 
