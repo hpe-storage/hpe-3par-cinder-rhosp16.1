@@ -17,51 +17,9 @@ python-3parclient 4.2.11
 
 ## Steps
 
-### 1.	Prepare custom container
+### 1.	Prepare the Environment Files for HPE 3PAR/Primera cinder-volume container and cinder backend
 
-1.1	Create Dockerfile as described [here](https://github.com/hpe-storage/hpe-3par-cinder-rhosp16.1/blob/master/Dockerfile)
-
-1.2	Login to Red Hat registry
-```
-sudo buildah login registry.redhat.io 
-```
-
-1.3	Build the podman image
-```
-sudo buildah bud --format docker --build-arg http_proxy=http://<proxy_ip>:8080 --build-arg https_proxy=http://<proxy_ip>:8080 . 
-```
-Notice the dot at the end.
-
-1.4	Run podman images command to verify if the container got created successfully or not
-```
-sudo podman images
-REPOSITORY                                           TAG                 IMAGE ID                       CREATED             SIZE
-<none>                                               <none>              d599f4f06967                   21 seconds ago      1.18 GB
-```
-
-1.5	Add tag to the image created
-
-In below command, cld13b4.ctlplane.set.rdlabs.hpecorp.net:8787 acts as local registry.
-
-```
-sudo podman tag <image id> cld13b4.ctlplane.set.rdlabs.hpecorp.net:8787/rhosp-rhel8/openstack-cinder-volume-hpe:latest
-```
-
-1.6	Run podman images command to verify the repository and tag is correctly updated to the docker image
-```
-sudo podman images
-REPOSITORY                                                                                                            TAG                                IMAGE ID               CREATED                    SIZE
-cld13b4.ctlplane.set.rdlabs.hpecorp.net:8787/rhosp-rhel8/openstack-cinder-volume-hpe                      latest                             d599f4f06967        2 minutes ago       1.18 GB
-```
-
-1.7	Push the container to a local registry
-```
-sudo openstack tripleo container image push --local cld13b4.ctlplane.set.rdlabs.hpecorp.net:8787/rhosp-rhel8/openstack-cinder-volume-hpe:latest
-```
-
-### 2.	Prepare the Environment Files for HPE 3PAR/Primera cinder-volume container and cinder backend
-
-#### 2.1 Environment File for cinder-volume container
+#### 1.1 Environment File for cinder-volume container
 
 To use HPE 3PAR/Primera hardware as a Block Storage back end, cinder-volume container having python-3parclient needs to be deployed.
 
@@ -141,7 +99,7 @@ The containers-prepare-parameter-hpe.yaml file replaces the standard containers-
 
 
 
-#### 2.2 Environment File for cinder backend
+#### 1.2 Environment File for cinder backend
 
 The environment file is a OSP director environment file. The environment file contains the settings for each backend you want to define.
 
@@ -160,7 +118,7 @@ Sample files for both iSCSI and FC backends are available in [templates](https:/
 For further details of HPE 3PAR and Primera cinder driver, kindly refer documentation [here](https://docs.openstack.org/cinder/victoria/configuration/block-storage/drivers/hpe-3par-driver.html)
 
 
-### 3.	Deploy the overcloud and configured backends
+### 2.	Deploy the overcloud and configured backends
 
 After creating ```cinder-hpe-[iscsi|fc].yaml``` file with appropriate backends, deploy the backend configuration by running the openstack overcloud deploy command using the templates option.
 Use the ```-e``` option to include the environment file ```cinder-hpe-[iscsi|fc].yaml```.
@@ -176,9 +134,9 @@ openstack overcloud deploy --templates /usr/share/openstack-tripleo-heat-templat
     --debug
 ```
 
-### 4.	Verify the configured changes
+### 3.	Verify the configured changes
 
-4.1	SSH to controller node from undercloud and check the docker process for cinder-volume
+3.1	SSH to controller node from undercloud and check the docker process for cinder-volume
 ```
 (overcloud) [heat-admin@overcloud-controller-0 ~]$ sudo podman ps | grep cinder
 56baa616ae2c  cld13b4.ctlplane.set.rdlabs.hpecorp.net:8787/rhosp-rhel8/openstack-cinder-volume:16.1           /bin/bash /usr/lo...  2 weeks ago  Up 2 hours ago         openstack-cinder-volume-podman-0
@@ -187,14 +145,14 @@ openstack overcloud deploy --templates /usr/share/openstack-tripleo-heat-templat
 4043187451d2  cld13b4.ctlplane.set.rdlabs.hpecorp.net:8787/rhosp-rhel8/openstack-cinder-api:16.1              kolla_start           2 weeks ago  Up 2 hours ago         cinder_api
 ```
 
-4.2.	Verify that the python-3parclient is present in the cinder-volume container
+3.2.	Verify that the python-3parclient is present in the cinder-volume container
 ```
 (overcloud) [heat-admin@overcloud-controller-0 ~]$ sudo podman exec -it 56baa616ae2c bash
 ()[root@overcloud-controller-0 /]# pip list | grep 3par
 python-3parclient        4.2.11
 ```
 
-4.3.	Verify that the backend details are visible in ```/etc/cinder/cinder.conf``` in the cinder-volume container
+3.3.	Verify that the backend details are visible in ```/etc/cinder/cinder.conf``` in the cinder-volume container
 
 Given below is an example of FC backend details. Similar entries should be observed for iSCSI backend too.
 
