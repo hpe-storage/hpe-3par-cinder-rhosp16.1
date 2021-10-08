@@ -1,5 +1,5 @@
 # custom cinder-volume container - having python-3parclient
-FROM registry.redhat.io/rhosp-rhel8/openstack-cinder-volume:16.1
+FROM registry.redhat.io/rhosp-rhel8/openstack-cinder-volume:16.1.6-7
 
 MAINTAINER HPE
 
