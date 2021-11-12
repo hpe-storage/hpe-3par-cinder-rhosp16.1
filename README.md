@@ -64,7 +64,7 @@ parameter_defaults:
       set:
         namespace: registry.connect.redhat.com/hpe3parcinder
         name_prefix: openstack-
-        name_suffix: -hpe3parcinder16-1
+        name_suffix: -hpe3parcinder16-1-6
         tag: latest
         ...
 ```
