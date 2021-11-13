@@ -169,4 +169,3 @@ san_password=<3par_password>
 volume_backend_name=3parfc_1
 volume_driver=cinder.volume.drivers.hpe.hpe_3par_fc.HPE3PARFCDriver
 ```
-
