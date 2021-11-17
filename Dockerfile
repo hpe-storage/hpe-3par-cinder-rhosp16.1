@@ -13,8 +13,6 @@ LABEL name="rhosp16.1/openstack-cinder-volume-hpe" \
 # switch to root and install a custom RPM, etc.
 USER "root"
 
-RUN export http_proxy=http://web-proxy.atl.hpecorp.net:8080/ && export https_proxy=http://web-proxy.atl.hpecorp.net:8080/
-
 # add below command so that, when container is built on 
 # RH catalog page, RH 'vulnerability' test gets passed.
 RUN yum -y update-minimal --security --sec-severity=Important --sec-severity=Critical
