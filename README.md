@@ -64,7 +64,7 @@ parameter_defaults:
       set:
         namespace: registry.connect.redhat.com/hpe3parcinder
         name_prefix: openstack-
-        name_suffix: -hpe3parcinder16-1-6
+        name_suffix: -hpe3parcinder16-1
         tag: latest
         ...
 ```
@@ -101,7 +101,7 @@ The containers-prepare-parameter-hpe.yaml file replaces the standard containers-
 
 #### 1.2 Environment File for cinder backend
 
-The environment file is a OSP director environment file. The environment file contains the settings for each backend you want to define.
+The environment file is an OSP director environment file. The environment file contains the settings for each backend you want to define.
 
 Create the environment file “cinder-hpe-[iscsi|fc].yaml” under /home/stack/templates/ with below parameters and other backend details.
 
@@ -111,7 +111,7 @@ parameter_defaults:
   ControllerExtraConfig:
 ```
 
-Sample files for both iSCSI and FC backends are available in [templates](https://github.com/traghavendra/hpe-3par-cinder-rhosp16.1/tree/main/templates) folder for reference.
+Sample files for both iSCSI and FC backends are available in [templates](https://github.com/hpe-storage/hpe-3par-cinder-rhosp16.1/blob/master/templates) folder for reference.
 
 #### Additional Help
 
@@ -129,7 +129,7 @@ The order of the environment files (.yaml) is important as the parameters and re
 openstack overcloud deploy --templates /usr/share/openstack-tripleo-heat-templates \
     -e /home/stack/templates/node-info.yaml \
     -e /home/stack/containers-prepare-parameter-hpe.yaml \
-    -e /home/stack/custom_container/cinder-hpe-[iscsi|fc].yaml \
+    -e /home/stack/templates/cinder-hpe-[iscsi|fc].yaml \
     --ntp-server <ntp_server_ip> \
     --debug
 ```
